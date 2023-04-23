@@ -7,6 +7,8 @@ contract User {
     MemberRole public immutable role;
     bool private _isSatisfied;
 
+    event SatisfactionChanged(bool state);
+
     constructor(address _memberAddress, MemberRole _role) {
         memberAddress = _memberAddress;
         _isSatisfied = false;
@@ -14,7 +16,9 @@ contract User {
     }
 
     function setIsSatisfied(bool newSatisfied) external {
+        require(newSatisfied != _isSatisfied, "DV");       // duplicate value
         _isSatisfied = newSatisfied;
+        emit SatisfactionChanged(newSatisfied);
     }
 
     function requireSatisfied() external view {
@@ -28,17 +32,21 @@ contract User {
 
 contract TrustedProject {
     modifier onlyCreator() {
-        require(msg.sender == creator.memberAddress);
+        require(msg.sender == creator.memberAddress, "IU");     // invalid user
         _;
     }
 
     modifier onlyCustomer() {
-        require(msg.sender == customer.memberAddress);
+        require(msg.sender == customer.memberAddress, "IU");    // invalid user
         _;
     }
 
     uint private _payment = 0;
     string[] private projectLinks;
+
+    event ProjectCompleted();
+    event PaymentAdded(uint amount, indexed address account);
+    event PaymentReceived(uint amount);
 
     User public immutable creator;
     User public immutable customer;
@@ -48,9 +56,12 @@ contract TrustedProject {
         customer = new User(_customerAddress, User.MemberRole.CUSTOMER);
     }
 
+    receive() external payable { addPayment(); }
+
     function addPayment() external payable {
         require(msg.value > 0, "FN");       // funds are negative
         _payment += msg.value;
+        emit PaymentAdded(msg.value, msg.sender);
     }
 
     function getPayment() external view returns(uint){
@@ -65,18 +76,25 @@ contract TrustedProject {
         }
     }
 
-    function getProjectLinks() external onlyCustomer returns (string[] memory) {
+    function getProjectLinks() external view onlyCustomer returns (string[] memory) {
         creator.requireSatisfied();
-        customer.setIsSatisfied(true);
         return projectLinks;
+    }
+
+    function completeProject() external onlyCustomer {
+        creator.setIsSatisfied(true);
+        emit ProjectCompleted();
     }
 
     function receivePayment(uint amount) external onlyCreator {
         customer.requireSatisfied();
-        require(amount <= _payment, "NEF");      // not enough funds
+        creator.requireSatisfied();
+        require(amount <= _payment, "NEF");     // not enough funds
 
         _payment -= amount;
         (bool isSent, ) = creator.getAddress().call{ value: amount }("");
         require(isSent, "TE");      // transfer error
+
+        emit PaymentReceived(amount);
     }
 }
