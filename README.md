@@ -44,7 +44,7 @@ What can you do right now:
 - Use Trust Project!
 - Contribute to Trust Project codebase!
 - Tell your friends about Trust Project!
-
+- Subscribe to [Safe Token](https://github.com/Safe-Token) organization!
 
 # ✍️ Contributing ✍️
 
