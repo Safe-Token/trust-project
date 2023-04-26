@@ -20,7 +20,6 @@ contract User {
     }
 
     function setIsSatisfied(bool newSatisfied) external {
-        require(newSatisfied != _isSatisfied, "DV");       // duplicate value
         _isSatisfied = newSatisfied;
         emit SatisfactionChanged(newSatisfied);
     }
@@ -50,7 +49,6 @@ contract TrustedProject {
 
     event ProjectCompleted();
     event PaymentAdded(uint amount, address account);
-    event PaymentReceived(uint amount);
 
     User public immutable creator;
     User public immutable customer;
@@ -90,19 +88,12 @@ contract TrustedProject {
     }
 
     function completeProject() external onlyCustomer {
-        creator.setIsSatisfied(true);
-        emit ProjectCompleted();
-    }
-
-    function receivePayment(uint amount) external onlyCreator {
         customer.requireSatisfied();
         creator.requireSatisfied();
-        require(amount <= _payment, "NEF");     // not enough funds
 
-        _payment -= amount;
-        (bool isSent, ) = creator.memberAddress().call{ value: amount }("");
+        (bool isSent, ) = creator.memberAddress().call{ value: _payment }("");
         require(isSent, "TE");      // transfer error
 
-        emit PaymentReceived(amount);
+        emit ProjectCompleted();
     }
 }
