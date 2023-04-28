@@ -25,11 +25,11 @@ contract User {
     }
 
     function requireSatisfied() external view {
-        require(_isSatisfied, "AS");     // already satisfied
+        require(_isSatisfied, "NS");     // already satisfied
     }
 
     function requireNotSatisfied() external view {
-        require(!_isSatisfied, "NS");     // not satisfied
+        require(!_isSatisfied, "AS");     // not satisfied
     }
 }
 
@@ -88,7 +88,6 @@ contract TrustedProject {
     }
 
     function completeProject() external onlyCustomer {
-        customer.requireSatisfied();
         creator.requireSatisfied();
 
         (bool isSent, ) = creator.memberAddress().call{ value: _payment }("");
