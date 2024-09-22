@@ -1,18 +1,20 @@
 {
-    "name": "trust-project",
-    "version": "1.0.0",
-    "description": "",
-    "main": "truffle-config.js",
-    "directories": {
-        "test": "test"
-    },
-    "scripts": {
-        "console": "truffle console --network mainnet_fork"
-    },
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "@truffle/hdwallet-provider": "^2.1.1",
-        "dotenv": "^16.0.3"
-    }
+  "name": "trust-project",
+  "version": "1.0.0",
+  "description": "Trust Project is a solidity smart contract that allows users to safely pay for services. It implements a two-step process to ensure that the creator does not scam the buyer. First, the buyer uploads the payment to the contract, and then the creator delivers the project. Once the buyer is satisfied with the work, they notify the contract, which then releases the payment to the creator.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.10"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "@uma/core": "^2.59.1"
+  }
 }
